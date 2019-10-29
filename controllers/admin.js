@@ -37,7 +37,6 @@ exports.postEditProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  const product = new Product(id, title, imageUrl, description, price);
   Product.upsert({
     id: id,
     title: title,
@@ -46,7 +45,6 @@ exports.postEditProduct = (req, res, next) => {
     imageUrl: imageUrl
   })
   .then( results => {
-    console.log(results)
     res.redirect('/admin/products');
   })
   .catch( err => next(err));
@@ -66,9 +64,12 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.deleteProduct(prodId)
-  .then( results => {
-    console.log(results[0]);
+  Product.findByPk(prodId)
+  .then( product => {
+    return product.destroy();
+  })
+  .then( () => {
+    console.log('Product deleted!');
     res.redirect('/admin/products');
   })
   .catch( err => {
