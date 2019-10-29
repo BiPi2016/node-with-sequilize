@@ -42,7 +42,8 @@ exports.postEditProduct = (req, res, next) => {
     title: title,
     price: price,
     description: description,
-    imageUrl: imageUrl
+    imageUrl: imageUrl,
+    userId: req.user.id
   })
   .then( results => {
     res.redirect('/admin/products');

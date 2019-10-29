@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 
 const sequelize = require('../util/database');;
 
-const User = sequelize.define({
+const User = sequelize.define('user', {
     id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -14,6 +14,10 @@ const User = sequelize.define({
         allowNull: false
     },
     email: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    telephone: {
         type: Sequelize.STRING,
         allowNull: false
     }
