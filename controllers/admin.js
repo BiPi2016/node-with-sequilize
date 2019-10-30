@@ -37,13 +37,43 @@ exports.postEditProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
+  /* Product.findByPk(id)
+  .then( product => {
+    if(!product) {
+       return req.admin.createProduct({
+        id: id,
+        title: title,
+        price: price,
+        description: description,
+        imageUrl: imageUrl    
+      });
+    }
+  }) */
+
+  // Creates new product with the admin as creator
+  /* req.admin.createProduct({
+      id: id,
+      title: title,
+      price: price,
+      description: description,
+      imageUrl: imageUrl    
+  })
+  .then( results => {
+    res.redirect('/admin/products');
+  })
+  .catch( err => {
+    console.log(err);
+    next(err);
+  }); */
+
+  // Creates or updates existing product
   Product.upsert({
     id: id,
     title: title,
     price: price,
     description: description,
     imageUrl: imageUrl,
-    userId: req.user.id
+    adminId: req.admin.id
   })
   .then( results => {
     res.redirect('/admin/products');
