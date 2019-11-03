@@ -37,18 +37,70 @@ exports.getIndex = (req, res, next) => {
   .catch( err => next(err));
 };
 
-exports.postAddToCart = (req, res, next) => {
+/* exports.postAddToCart = (req, res, next) => {
+  console.log('==========================================');
+  console.log('Adding product to cart');
   const id = req.body.productId;
-  Product.findById(id, product => {
+  console.log('Product has the id ' + id);
+  Product.findByPk(id, product => {
     console.log('Requested product has id ' + id);
+  });
+}; */
+
+exports.getCart = (req, res, next) => {
+  req.user.getCart()
+  .then( cart => {
+    cart.getProducts()
+    .then( products => {
+      res.render('shop/cart', {
+        path: '/cart',
+        pageTitle: 'Your Cart',
+        products: products
+      });
+    })
+    .catch( err => console.log(err));    
+  })
+  .catch( err => {
+    console.log(err);
+    next(err);
   });
 };
 
-exports.getCart = (req, res, next) => {
-  res.render('shop/cart', {
-    path: '/cart',
-    pageTitle: 'Your Cart'
-  });
+exports.postCart = (req, res, next) => {  
+  console.log('==========================================');
+  console.log('Adding product to cart');
+  const prodId = req.body.productId;
+  console.log('Product has the id ' + prodId);
+  let fetchedCart;
+  req.user.getCart()
+  .then( cart => {
+    fetchedCart = cart;
+    return cart.getProducts({ where: { id: prodId } })
+  })
+  .then( products => {
+    console.log('Following existing product exist in the cart ' + products);
+    let product;
+    if(products.length > 0) 
+      product = products[0];
+    let newQuantity = 1;
+
+    if(product) {
+      // If product exists in the cart
+    }
+
+    return Product.findByPk(prodId)
+    .then( product => {
+      fetchedCart.addProduct( product, { through: { quantity: newQuantity } });
+    })
+    .catch( err => {
+      console.log(err);
+      next(err);
+    });
+  })  
+  .then( () => {
+    res.redirect('/cart');
+  })
+  .catch( err => next(err));
 };
 
 exports.getOrders = (req, res, next) => {

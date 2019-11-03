@@ -70,9 +70,12 @@ sequelize.sync(/* {force: true} */)
         return User.create({name: 'Some user', email: 'bp.singh@gmail.com', telephone: '634090090'});
     return user;
 })
-.then( admin => {
-    console.log(admin.name);
-    app.listen(3000);
+.then( user => {
+    console.log(user.name + ' is our user');
+    return user.createCart();
+})
+.then( cart => {
+    app.listen(3000);    
 })
 .catch( err => {
     console.log(err);
