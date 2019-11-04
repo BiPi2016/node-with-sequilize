@@ -16,6 +16,12 @@ router.post('/add-to-cart', shopController.postCart);
 
 router.get('/cart', shopController.getCart);
 
+router.post('/cart-delete-item', shopController.postCartDeleteProduct);
+
+router.post('/cart-increase-item', shopController.postCartIncreaseByOne);
+
+router.post('/cart-decrease-item', shopController.postCartDecreaseByOne);
+
 router.get('/orders', shopController.getOrders);
 
 router.get('/checkout', shopController.getCheckout);

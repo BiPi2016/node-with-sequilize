@@ -101,6 +101,76 @@ exports.postCart = (req, res, next) => {
   .catch( err => next(err));
 };
 
+exports.postCartDeleteProduct = (req, res, next) => {
+  const prodId = req.body.productId;
+  req.user.getCart()
+  .then(cart => {
+    return cart.getProducts({where: {id: prodId}})
+  })
+  .then( products => {
+    const product = products[0];
+    return product.cartItem.destroy();
+  })
+  .then( results => {
+    res.redirect('/cart');
+  })
+  .catch( err => {
+    console.log(err);
+    next(err);
+  })
+};
+
+// Increase product quantity
+exports.postCartIncreaseByOne = (req, res, next) => {
+  const prodId = req.body.productId;
+  let fetchedCart;
+  let newQuantity;
+  req.user.getCart()
+  .then( cart => {  
+    fetchedCart = cart;  
+    return cart.getProducts({ where: {id: prodId}})
+  })
+  .then( products => {
+    const product = products[0];
+    console.log('This products is to be increased by 1 ' + product.title);
+    newQuantity = product.cartItem.quantity + 1;
+    return fetchedCart.addProduct(product, {through: {quantity: newQuantity}});
+  })
+  .then( () => {
+    res.redirect('/cart');
+  })
+  .catch( err => {
+    console.log(err);
+    next(err);
+  });
+};
+
+// Decrease product quantity
+exports.postCartDecreaseByOne = (req, res, next) => {
+  const prodId = req.body.productId;
+  let fetchedCart;
+  let newQuantity;
+  req.user.getCart()
+  .then( cart => {
+    fetchedCart = cart;
+    return cart.getProducts({ where: { id: prodId}});
+  })
+  .then( products => {
+    const product = products[0];
+    newQuantity = product.cartItem.quantity - 1;
+    if( newQuantity === 0)
+      return res.redirect(307, '/cart-delete-item');  // Status code 307 redirects to specified path with POST method
+    return fetchedCart.addProduct(product, {through: {quantity: newQuantity}});
+  })
+  .then( () => {
+    res.redirect('/cart');
+  })
+  .catch( err => {
+    console.log(err);
+    next(err);
+  });
+};
+
 exports.getOrders = (req, res, next) => {
   res.render('shop/orders', {
     path: '/orders',
