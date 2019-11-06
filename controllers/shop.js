@@ -79,7 +79,6 @@ exports.postCart = (req, res, next) => {
     return cart.getProducts({ where: { id: prodId } })
   })
   .then( products => {
-    console.log('Following existing product exist in the cart ' + products);
     let product;
     if(products.length > 0) 
       product = products[0];    
@@ -172,10 +171,54 @@ exports.postCartDecreaseByOne = (req, res, next) => {
 };
 
 exports.getOrders = (req, res, next) => {
-  res.render('shop/orders', {
-    path: '/orders',
-    pageTitle: 'Your Orders'
+  req.user.getOrders( {include: [ Product ]} )
+  .then( orders => {
+    for(order of orders) {
+      console.log('order id: ' + order.id);
+      for(item in order.orderItem) {
+        console.log('ordered product ' + item.title);
+      }
+    }
+    res.render('shop/orders', {
+      path: '/orders',
+      pageTitle: 'Your Orders',
+      orders: orders
+    });
+  })
+  .catch( err => {
+    console.log(err);
+    next(err);
   });
+};
+
+exports.postOrder = (req, res, next) => {
+  let fetchedCart;
+  req.user.getCart()
+  .then( cart => {
+    fetchedCart = cart;
+    return cart.getProducts();
+  })
+  .then( products => {  
+    return req.user.createOrder()
+      .then( order => {
+        return order.addProducts( products.map( product => {
+          product.orderItem = {quantity: product.cartItem.quantity};
+          return product;
+        }));
+      })
+      .catch( err => console.log(err));
+  })
+  .then( result => {
+    return fetchedCart.setProducts(null);
+  })
+  .then( result => {
+    res.redirect('/orders');
+  })
+  .catch( err => {
+    console.log(err);
+    next(err);
+  });
+
 };
 
 exports.getCheckout = (req, res, next) => {

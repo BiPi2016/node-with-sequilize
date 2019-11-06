@@ -24,6 +24,8 @@ router.post('/cart-decrease-item', shopController.postCartDecreaseByOne);
 
 router.get('/orders', shopController.getOrders);
 
+router.post('/create-order', shopController.postOrder);
+
 router.get('/checkout', shopController.getCheckout);
 
 module.exports = router;
